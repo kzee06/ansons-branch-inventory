@@ -1,0 +1,27 @@
+= 1.2.3 =
+* Declares Order Delivery Date Pro as a required plugin. Admin notices and page copy updated.
+
+= 1.2.2 =
+* Renamed plugin to Ansons Branch Inventory. Author: KC Cheng.
+
+= 1.2.1 =
+* Added "Download WooCommerce SKU template" — exports all online SKUs × branches with not_available as the default.
+
+= 1.2.0 =
+* Simplified CSV to available / not_available only (no quantity column).
+* Store samples and labels updated (e.g. MANILA). Frontend labels now show Available and Not available.
+
+= 1.1.1 =
+* Added changelog.txt for release history.
+* Branch Inventory admin page now shows plugin version and changelog.
+
+= 1.1.0 =
+* Per-product branch stock overrides on the WooCommerce product edit screen.
+* Variable products: branch inventory fields on each variation with a SKU.
+
+= 1.0.0 =
+* CSV import (merge and replace modes) for branch × SKU stock.
+* POS store code mapping to ORDDD pickup locations.
+* Product page click & collect availability by branch.
+* Checkout branch selector availability summary and optional checkout blocking.
+* Sample CSV template included.

@@ -1,0 +1,61 @@
+ANSONS BRANCH INVENTORY — SETUP & DAILY TODO
+Plugin by KC Cheng | Requires WooCommerce + Order Delivery Date Pro
+================================================================
+
+ONE-TIME SETUP
+--------------
+[ ] Install WooCommerce (active)
+[ ] Install Order Delivery Date Pro (folder must be: order-delivery-date)
+[ ] Copy plugin folder to wp-content/plugins/ and activate "Ansons Branch Inventory"
+[ ] In Order Delivery Date → Pickup Locations: add all store branches (Manila, Cebu, etc.)
+[ ] In WooCommerce → Ansons Branch Inventory → Store code mapping:
+        Map POS store codes (e.g. MANILA, CEBU) to each ORDDD branch
+[ ] Confirm every online product has a SKU (Products → Edit → Inventory → SKU)
+        SKU must match your offline/POS system (e.g. 117600179586)
+[ ] Download "WooCommerce SKU template" from Ansons Branch Inventory admin
+[ ] Test import with a small CSV, then verify product page + checkout pickup availability
+
+CSV FORMAT (every import)
+-------------------------
+sku,store_code,status
+117600179586,MANILA,available
+117600179586,CEBU,not_available
+
+Status values: available  |  not_available
+
+DAILY / REGULAR WORKFLOW
+------------------------
+[ ] Export or fill CSV for WooCommerce SKUs only (offline-only SKUs not needed)
+[ ] Staff marks available / not_available per store branch
+[ ] WooCommerce → Ansons Branch Inventory → Import CSV → Merge (daily updates)
+[ ] Spot-check a few products on the website (product page + checkout branch selector)
+[ ] Review "Last import" for skipped rows and fix store codes or SKUs if needed
+
+MANUAL OVERRIDES (when needed)
+-------------------------------
+[ ] Products → Edit product → Ansons Branch Inventory meta box
+[ ] Set Available / Not available per branch for one SKU
+[ ] Update product to save (CSV merge will overwrite matching rows later)
+
+SETTINGS TO CONFIRM
+-------------------
+[ ] Block checkout when items not available at selected branch — ON/OFF as you prefer
+[ ] Show branch availability on product pages — ON/OFF as you prefer
+
+BEFORE GO-LIVE
+--------------
+[ ] Order Delivery Date: pickup locations enabled; customer must choose branch
+[ ] Test click & collect checkout: pick branch → see availability → place test order
+[ ] Train staff: template download → fill status → merge import
+
+OPTIONAL LATER
+--------------
+[ ] Automate CSV pull from cloud/SFTP (not built yet — manual upload for now)
+[ ] Rename plugin folder to ansons-branch-inventory if desired (cosmetic)
+
+SUPPORT NOTES
+-------------
+- WooCommerce global stock qty is separate from branch pickup availability
+- Merge import = update matching SKU+branch rows; leave others unchanged
+- Replace import = wipe all branch data first, then import fresh
+- Plugin version & changelog: WooCommerce → Ansons Branch Inventory (bottom of page)

@@ -1,0 +1,108 @@
+.bpi-product-availability {
+	margin: 1.5em 0;
+	padding: 1em 1.25em;
+	border: 1px solid #e2e2e2;
+	border-radius: 6px;
+	background: #fafafa;
+}
+
+.bpi-product-availability__title {
+	margin: 0 0 0.75em;
+	font-size: 1.05em;
+}
+
+.bpi-product-availability__note {
+	margin: 0.75em 0 0;
+	font-size: 0.85em;
+	color: #666;
+}
+
+.bpi-branch-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.bpi-branch-list__item {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 0.45em 0;
+	border-bottom: 1px solid #ececec;
+}
+
+.bpi-branch-list__item:last-child {
+	border-bottom: 0;
+}
+
+.bpi-status {
+	display: inline-block;
+	padding: 0.15em 0.55em;
+	border-radius: 999px;
+	font-size: 0.82em;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.bpi-status--in-stock {
+	background: #e7f7ed;
+	color: #1e7e34;
+}
+
+.bpi-status--low-stock {
+	background: #fff4e5;
+	color: #b45309;
+}
+
+.bpi-status--out-of-stock {
+	background: #fdecea;
+	color: #b91c1c;
+}
+
+.bpi-status--unknown {
+	background: #f3f4f6;
+	color: #4b5563;
+}
+
+.bpi-checkout-availability {
+	margin: 1em 0 1.5em;
+	padding: 1em 1.25em;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.bpi-checkout-availability h4 {
+	margin: 0 0 0.75em;
+}
+
+.bpi-checkout-availability ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.bpi-checkout-availability li {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 0.35em 0;
+}
+
+.bpi-checkout-availability .bpi-message {
+	margin: 0;
+}
+
+.bpi-checkout-availability.is-warning {
+	border-color: #f0ad4e;
+	background: #fffbf5;
+}
+
+.bpi-checkout-availability.is-success {
+	border-color: #46b450;
+	background: #f6fff7;
+}
+
+.bpi-checkout-availability.is-loading {
+	opacity: 0.7;
+}

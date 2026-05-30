@@ -1,0 +1,134 @@
+.bpi-admin__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	gap: 20px;
+	margin-top: 20px;
+}
+
+.bpi-admin__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 4px;
+}
+
+.bpi-admin__title-wrap h1 {
+	margin: 0;
+}
+
+.bpi-admin__author {
+	margin: 4px 0 0;
+	font-size: 13px;
+	color: #646970;
+}
+
+.bpi-version-badge {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: #f0f0f1;
+	border: 1px solid #c3c4c7;
+	font-size: 12px;
+	font-weight: 600;
+	color: #50575e;
+}
+
+.bpi-card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	padding: 20px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.bpi-card--wide {
+	grid-column: 1 / -1;
+}
+
+.bpi-code {
+	background: #f6f7f7;
+	padding: 12px;
+	border-radius: 4px;
+	overflow-x: auto;
+}
+
+.bpi-error-list {
+	max-height: 200px;
+	overflow: auto;
+}
+
+.bpi-admin table input[type="text"],
+.bpi-admin table select {
+	width: 100%;
+	max-width: 100%;
+}
+
+.bpi-product-table {
+	margin-top: 12px;
+}
+
+.bpi-product-table select,
+.bpi-product-table input[type="number"] {
+	min-width: 140px;
+	max-width: 100%;
+}
+
+.bpi-product-panel__notice {
+	margin: 0;
+	padding: 8px 0;
+	color: #646970;
+}
+
+.bpi-variation-inventory {
+	margin: 12px 0 4px;
+	padding: 12px;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	background: #fafafa;
+}
+
+.bpi-variation-inventory h4 {
+	margin: 0 0 8px;
+}
+
+.bpi-changelog__release {
+	margin-bottom: 20px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #ececec;
+}
+
+.bpi-changelog__release:last-child {
+	margin-bottom: 0;
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
+.bpi-changelog__version {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 8px;
+	font-size: 14px;
+}
+
+.bpi-changelog__current {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: #e7f7ed;
+	color: #1e7e34;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.bpi-changelog ul {
+	margin: 0;
+	padding-left: 1.2em;
+}
+
+.bpi-changelog li {
+	margin-bottom: 4px;
+}

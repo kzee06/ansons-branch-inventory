@@ -1,0 +1,5 @@
+sku,store_code,status
+EXAMPLE-SKU-001,MANILA,available
+EXAMPLE-SKU-001,CEBU,not_available
+EXAMPLE-SKU-002,MANILA,available
+EXAMPLE-SKU-002,CEBU,available
