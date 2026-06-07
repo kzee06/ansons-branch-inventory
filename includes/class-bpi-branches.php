@@ -118,4 +118,32 @@ class BPI_Branches {
 
 		return $branches[ $branch_id ]['label'] ?? $branch_id;
 	}
+
+	/**
+	 * Short branch name for compact admin lists.
+	 *
+	 * @param string $branch_id Branch row_id.
+	 * @return string
+	 */
+	public static function get_short_label( $branch_id ) {
+		$branches = self::get_branches();
+
+		if ( ! isset( $branches[ $branch_id ] ) ) {
+			return '';
+		}
+
+		$branch = $branches[ $branch_id ];
+
+		if ( ! empty( $branch['city'] ) ) {
+			return (string) $branch['city'];
+		}
+
+		$label = (string) $branch['label'];
+
+		if ( strlen( $label ) <= 22 ) {
+			return $label;
+		}
+
+		return substr( $label, 0, 20 ) . '…';
+	}
 }

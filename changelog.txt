@@ -1,3 +1,53 @@
+= 1.4.4 =
+* SAP imports: minimum stock threshold is now configurable in the upload form before importing (default 2).
+
+= 1.4.3 =
+* Product page: available branches shown first; other branches hidden behind a toggle button.
+
+= 1.4.2 =
+* Checkout: bottom note now hints which branches have every cart item available (stock disclaimer removed from checkout).
+* Product page: summary hint (e.g. Available at 1 of 4 branches) loads on page view and stays right-aligned in the header row.
+
+= 1.4.1 =
+* Product and checkout notes now explain that items are reserved at the chosen branch once an order is placed.
+
+= 1.4.0 =
+* Friendlier product page note: availability reflects current store stock, without reference to manual imports.
+
+= 1.3.9 =
+* Checkout hint now lists only branches where every cart item is available, with clearer wording.
+
+= 1.3.8 =
+* Product click & collect card: 20px border radius, left-aligned header text, extra spacing below before product overview.
+
+= 1.3.7 =
+* Removed Order Delivery Date from Requires Plugins header (commercial plugin, not on WordPress.org) to avoid WordPress dependency API warnings on Add Plugins screen.
+
+= 1.3.6 =
+* Fixed product page availability AJAX URL so click & collect loads correctly on cached pages.
+* Moved click & collect block above Add to cart again (priority 25).
+* Checkout now shows "Not at this branch" when stock exists at other branches, with a hint listing where pickup is available.
+
+= 1.3.5 =
+* Unified checkout and product pickup availability styling — matching pills, grid layout, no yellow warning box. Unknown status label changed to "Not imported".
+
+= 1.3.4 =
+* Product page pickup availability now loads via AJAX when the customer expands the dropdown, so cached product pages stay fresh after CSV imports without a site-wide cache purge.
+
+= 1.3.3 =
+* Product page click & collect is now a collapsible dropdown, shown below the product overview. Branch badges align cleanly when location names wrap to two lines.
+
+= 1.3.2 =
+* Pickup column on WooCommerce → Products list showing branches where each SKU is available after CSV import.
+
+= 1.3.1 =
+* Redesigned admin dashboard (full-width layout, clearer SAP vs template import paths).
+* Author updated to Kristoffer Cheng with GitHub profile link.
+* SAP import combines stock across multiple WhsCodes mapped to the same pickup branch.
+
+= 1.3.0 =
+* Direct SAP inventory CSV import (Itemcode, WhsCode, Available). Only WooCommerce SKUs are updated; stock below 2 = Not available, 2+ = Available. Map SAP WhsCode to ORDDD branches in store code mapping.
+
 = 1.2.3 =
 * Declares Order Delivery Date Pro as a required plugin. Admin notices and page copy updated.
 

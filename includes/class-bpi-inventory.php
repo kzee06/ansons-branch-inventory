@@ -28,11 +28,35 @@ class BPI_Inventory {
 		$defaults = array(
 			'block_checkout'  => 'yes',
 			'show_on_product' => 'yes',
+			'sap_min_stock'   => 2,
 		);
 
 		$settings = get_option( BPI_Database::SETTINGS_OPTION, array() );
 
 		return wp_parse_args( is_array( $settings ) ? $settings : array(), $defaults );
+	}
+
+	/**
+	 * Minimum SAP Available qty treated as in stock (configurable in admin).
+	 *
+	 * @return int
+	 */
+	public static function get_sap_min_stock() {
+		$settings = self::get_settings();
+
+		return max( 0, (int) $settings['sap_min_stock'] );
+	}
+
+	/**
+	 * Save the SAP minimum stock threshold.
+	 *
+	 * @param int|string $value Minimum quantity.
+	 * @return void
+	 */
+	public static function set_sap_min_stock( $value ) {
+		$settings                  = self::get_settings();
+		$settings['sap_min_stock'] = max( 0, (int) $value );
+		update_option( BPI_Database::SETTINGS_OPTION, $settings );
 	}
 
 	/**
@@ -85,9 +109,10 @@ class BPI_Inventory {
 	 * @param string   $sku       Product SKU.
 	 * @param string   $branch_id ORDDD row_id.
 	 * @param string   $status    Availability status.
+	 * @param int|null $qty       Optional stock quantity from import.
 	 * @return bool
 	 */
-	public static function upsert_row( $sku, $branch_id, $status ) {
+	public static function upsert_row( $sku, $branch_id, $status, $qty = null ) {
 		global $wpdb;
 
 		$sku       = wc_clean( $sku );
@@ -111,7 +136,7 @@ class BPI_Inventory {
 				'sku'        => $sku,
 				'branch_id'  => $branch_id,
 				'status'     => $status,
-				'qty'        => null,
+				'qty'        => null === $qty ? null : (int) $qty,
 				'updated_at' => $now,
 			),
 			array( '%d', '%s', '%s', '%s', '%d', '%s' )
@@ -256,14 +281,18 @@ class BPI_Inventory {
 				$status = self::get_sku_status_at_branch( $sku, $branch_id );
 			}
 
+			$available_elsewhere = '' !== $sku ? self::get_available_branch_labels_for_sku( $sku ) : array();
+
 			$items[] = array(
-				'product_id'   => $product->get_id(),
-				'name'         => $product->get_name(),
-				'sku'          => $sku,
-				'quantity'     => (int) $cart_item['quantity'],
-				'status'       => self::normalize_status( $status ),
-				'status_label' => self::status_label( $status ),
-				'available'    => 'in_stock' === self::normalize_status( 'unknown' === $status ? 'unknown' : $status ),
+				'product_id'          => $product->get_id(),
+				'name'                => $product->get_name(),
+				'sku'                 => $sku,
+				'quantity'            => (int) $cart_item['quantity'],
+				'status'              => self::normalize_status( $status ),
+				'status_label'        => self::get_cart_status_label( $status, $available_elsewhere ),
+				'status_class'        => self::status_class( $status ),
+				'available'           => 'in_stock' === self::normalize_status( 'unknown' === $status ? 'unknown' : $status ),
+				'available_elsewhere' => $available_elsewhere,
 			);
 		}
 
@@ -295,6 +324,134 @@ class BPI_Inventory {
 	}
 
 	/**
+	 * Short branch labels where a SKU is available for pickup.
+	 *
+	 * @param string $sku Product SKU.
+	 * @return array<int, string>
+	 */
+	public static function get_available_branch_labels_for_sku( $sku ) {
+		global $wpdb;
+
+		$sku = wc_clean( $sku );
+
+		if ( '' === $sku ) {
+			return array();
+		}
+
+		$table = BPI_Database::get_table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT branch_id FROM {$table} WHERE sku = %s AND status = %s",
+				$sku,
+				'in_stock'
+			),
+			ARRAY_A
+		);
+
+		$labels = array();
+
+		foreach ( (array) $rows as $row ) {
+			$label = BPI_Branches::get_short_label( (string) $row['branch_id'] );
+
+			if ( '' !== $label ) {
+				$labels[] = $label;
+			}
+		}
+
+		return array_values( array_unique( $labels ) );
+	}
+
+	/**
+	 * Cart line status label with branch context.
+	 *
+	 * @param string               $status_at_branch Status at selected branch.
+	 * @param array<int, string>   $available_elsewhere Branch labels with stock.
+	 * @return string
+	 */
+	public static function get_cart_status_label( $status_at_branch, $available_elsewhere ) {
+		if ( 'in_stock' === self::normalize_status( $status_at_branch ) ) {
+			return self::status_label( 'in_stock' );
+		}
+
+		if ( ! empty( $available_elsewhere ) && 'unknown' === $status_at_branch ) {
+			return __( 'Not at this branch', 'orddd-branch-pickup-inventory' );
+		}
+
+		return self::status_label( $status_at_branch );
+	}
+
+	/**
+	 * Branch labels where every cart SKU is available for pickup.
+	 *
+	 * @param string $exclude_branch_id Optional branch row_id to omit (e.g. current selection).
+	 * @return array<int, string>
+	 */
+	public static function get_branches_where_cart_is_fully_available( $exclude_branch_id = '' ) {
+		if ( ! WC()->cart ) {
+			return array();
+		}
+
+		$skus = array();
+
+		foreach ( WC()->cart->get_cart() as $cart_item ) {
+			$product = $cart_item['data'];
+
+			if ( ! $product || ! $product->exists() ) {
+				continue;
+			}
+
+			$sku = $product->get_sku();
+
+			if ( '' === $sku ) {
+				return array();
+			}
+
+			$skus[] = $sku;
+		}
+
+		$skus = array_values( array_unique( $skus ) );
+
+		if ( empty( $skus ) ) {
+			return array();
+		}
+
+		$exclude_branch_id = wc_clean( (string) $exclude_branch_id );
+		$branches          = BPI_Branches::get_branches();
+		$eligible          = array();
+
+		foreach ( $branches as $branch_id => $branch ) {
+			if ( '' !== $exclude_branch_id && $branch_id === $exclude_branch_id ) {
+				continue;
+			}
+
+			$all_available = true;
+
+			foreach ( $skus as $sku ) {
+				$status = self::get_sku_status_at_branch( $sku, $branch_id );
+
+				if ( 'in_stock' !== self::normalize_status( $status ) ) {
+					$all_available = false;
+					break;
+				}
+			}
+
+			if ( ! $all_available ) {
+				continue;
+			}
+
+			$label = BPI_Branches::get_short_label( $branch_id );
+
+			if ( '' !== $label ) {
+				$eligible[] = $label;
+			}
+		}
+
+		return array_values( array_unique( $eligible ) );
+	}
+
+	/**
 	 * Human label for status.
 	 *
 	 * @param string $status Status slug.
@@ -308,7 +465,7 @@ class BPI_Inventory {
 		$labels = array(
 			'in_stock'     => __( 'Available', 'orddd-branch-pickup-inventory' ),
 			'out_of_stock' => __( 'Not available', 'orddd-branch-pickup-inventory' ),
-			'unknown'      => __( 'Availability unknown', 'orddd-branch-pickup-inventory' ),
+			'unknown'      => __( 'Not imported', 'orddd-branch-pickup-inventory' ),
 		);
 
 		return $labels[ $status ] ?? $labels['unknown'];
@@ -362,5 +519,72 @@ class BPI_Inventory {
 		$updated = $wpdb->get_var( "SELECT MAX(updated_at) FROM {$table}" );
 
 		return $updated ? (string) $updated : '';
+	}
+
+	/**
+	 * Pickup summaries for many SKUs (products list batch load).
+	 *
+	 * @param array<int, string> $skus Product SKUs.
+	 * @return array<string, array{available: array<int, string>, unavailable: array<int, string>}>
+	 */
+	public static function get_pickup_summary_by_skus( $skus ) {
+		global $wpdb;
+
+		$skus = array_values(
+			array_unique(
+				array_filter(
+					array_map(
+						static function ( $sku ) {
+							return wc_clean( (string) $sku );
+						},
+						$skus
+					)
+				)
+			)
+		);
+
+		$result = array();
+
+		foreach ( $skus as $sku ) {
+			$result[ $sku ] = array(
+				'available'   => array(),
+				'unavailable' => array(),
+			);
+		}
+
+		if ( empty( $skus ) ) {
+			return $result;
+		}
+
+		$table        = BPI_Database::get_table_name();
+		$placeholders = implode( ', ', array_fill( 0, count( $skus ), '%s' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT sku, branch_id, status FROM {$table} WHERE sku IN ({$placeholders})",
+				...$skus
+			),
+			ARRAY_A
+		);
+
+		foreach ( (array) $rows as $row ) {
+			$sku       = (string) $row['sku'];
+			$branch_id = (string) $row['branch_id'];
+			$status    = self::normalize_status( (string) $row['status'] );
+			$label     = BPI_Branches::get_short_label( $branch_id );
+
+			if ( '' === $label || ! isset( $result[ $sku ] ) ) {
+				continue;
+			}
+
+			if ( 'in_stock' === $status ) {
+				$result[ $sku ]['available'][] = $label;
+			} else {
+				$result[ $sku ]['unavailable'][] = $label;
+			}
+		}
+
+		return $result;
 	}
 }

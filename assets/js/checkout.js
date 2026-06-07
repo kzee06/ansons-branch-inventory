@@ -14,6 +14,34 @@
 		return shipping.indexOf('local_pickup') !== -1;
 	}
 
+	function escapeHtml(text) {
+		return $('<div>').text(text).html();
+	}
+
+	function getStatusClass(item) {
+		if (item.status_class) {
+			return item.status_class;
+		}
+
+		if (item.status === 'in_stock') {
+			return 'bpi-status--in-stock';
+		}
+
+		if (item.status === 'out_of_stock') {
+			return 'bpi-status--out-of-stock';
+		}
+
+		return 'bpi-status--unknown';
+	}
+
+	function buildFullyAvailableHint(branches) {
+		if (!branches || !branches.length) {
+			return bpiCheckout.labels.noFullyAvailable || '';
+		}
+
+		return bpiCheckout.labels.fullyAvailableHint.replace('%s', branches.join(', '));
+	}
+
 	function renderAvailability(data) {
 		var $panel = $('#bpi-checkout-availability');
 
@@ -21,51 +49,51 @@
 			return;
 		}
 
-		$panel.removeClass('is-loading is-warning is-success');
+		$panel.removeClass('is-loading');
 
 		if (!isPickupContext()) {
 			$panel.empty();
 			return;
 		}
 
+		var html = '<div class="bpi-availability-card">';
+
 		if (!data || data.message === 'select_branch') {
-			$panel
-				.addClass('is-warning')
-				.html('<p class="bpi-message">' + bpiCheckout.labels.selectBranch + '</p>');
+			html += '<h4 class="bpi-availability-card__title">' + escapeHtml(bpiCheckout.labels.title) + '</h4>';
+			html += '<p class="bpi-availability-card__message">' + escapeHtml(bpiCheckout.labels.selectBranch) + '</p>';
+			html += '</div>';
+			$panel.html(html);
 			return;
 		}
 
-		var html = '<h4>' + bpiCheckout.labels.title + '</h4>';
+		html += '<h4 class="bpi-availability-card__title">' + escapeHtml(bpiCheckout.labels.title) + '</h4>';
 
 		if (!data.items || !data.items.length) {
-			$panel.html('<p class="bpi-message">' + bpiCheckout.labels.selectBranch + '</p>');
+			html += '<p class="bpi-availability-card__message">' + escapeHtml(bpiCheckout.labels.selectBranch) + '</p>';
+			html += '</div>';
+			$panel.html(html);
 			return;
 		}
 
-		html += '<ul>';
+		html += '<ul class="bpi-branch-list">';
 
 		data.items.forEach(function (item) {
-			var statusClass = 'bpi-status--unknown';
-
-			if (item.status === 'in_stock') {
-				statusClass = 'bpi-status--in-stock';
-			} else if (item.status === 'out_of_stock') {
-				statusClass = 'bpi-status--out-of-stock';
-			}
-
-			html += '<li><span>' + item.name + '</span><span class="bpi-status ' + statusClass + '">' + item.status_label + '</span></li>';
+			html += '<li class="bpi-branch-list__item">';
+			html += '<span class="bpi-branch-list__name">' + escapeHtml(item.name) + '</span>';
+			html += '<span class="bpi-status ' + escapeHtml(getStatusClass(item)) + '">' + escapeHtml(item.status_label) + '</span>';
+			html += '</li>';
 		});
 
 		html += '</ul>';
 
 		if (data.all_available) {
-			$panel.addClass('is-success');
-			html += '<p class="bpi-message">' + bpiCheckout.labels.allAvailable + '</p>';
+			html += '<p class="bpi-availability-card__note bpi-availability-card__note--positive">' + escapeHtml(bpiCheckout.labels.allAvailable) + '</p>';
 		} else {
-			$panel.addClass('is-warning');
-			html += '<p class="bpi-message">' + bpiCheckout.labels.unavailable + '</p>';
+			html += '<p class="bpi-availability-card__note bpi-availability-card__note--negative">' + escapeHtml(bpiCheckout.labels.unavailable) + '</p>';
+			html += '<p class="bpi-availability-card__note bpi-availability-card__note--hint">' + escapeHtml(buildFullyAvailableHint(data.fully_available_branches)) + '</p>';
 		}
 
+		html += '</div>';
 		$panel.html(html);
 	}
 
@@ -77,7 +105,12 @@
 			return;
 		}
 
-		$panel.addClass('is-loading').html('<p class="bpi-message">' + bpiCheckout.labels.loading + '</p>');
+		$panel.addClass('is-loading').html(
+			'<div class="bpi-availability-card">' +
+			'<h4 class="bpi-availability-card__title">' + escapeHtml(bpiCheckout.labels.title) + '</h4>' +
+			'<p class="bpi-availability-card__message">' + escapeHtml(bpiCheckout.labels.loading) + '</p>' +
+			'</div>'
+		);
 
 		$.get(bpiCheckout.ajaxUrl, {
 			branch_id: branchId,
@@ -87,7 +120,12 @@
 				renderAvailability(response.data);
 			}
 		}).fail(function () {
-			$panel.removeClass('is-loading').html('<p class="bpi-message">' + bpiCheckout.labels.selectBranch + '</p>');
+			$panel.removeClass('is-loading').html(
+				'<div class="bpi-availability-card">' +
+				'<h4 class="bpi-availability-card__title">' + escapeHtml(bpiCheckout.labels.title) + '</h4>' +
+				'<p class="bpi-availability-card__message">' + escapeHtml(bpiCheckout.labels.selectBranch) + '</p>' +
+				'</div>'
+			);
 		});
 	}
 

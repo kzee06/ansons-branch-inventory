@@ -1,5 +1,5 @@
 ANSONS BRANCH INVENTORY — SETUP & DAILY TODO
-Plugin by KC Cheng | Requires WooCommerce + Order Delivery Date Pro
+Plugin by Kristoffer Cheng (https://github.com/kzee06) | Requires WooCommerce + Order Delivery Date Pro
 ================================================================
 
 ONE-TIME SETUP
@@ -9,7 +9,8 @@ ONE-TIME SETUP
 [ ] Copy plugin folder to wp-content/plugins/ and activate "Ansons Branch Inventory"
 [ ] In Order Delivery Date → Pickup Locations: add all store branches (Manila, Cebu, etc.)
 [ ] In WooCommerce → Ansons Branch Inventory → Store code mapping:
-        Map POS store codes (e.g. MANILA, CEBU) to each ORDDD branch
+        Map SAP WhsCode values (e.g. 110, 120, 130) to each ORDDD pickup branch
+        (or use text store codes like MANILA, CEBU for manual CSV imports)
 [ ] Confirm every online product has a SKU (Products → Edit → Inventory → SKU)
         SKU must match your offline/POS system (e.g. 117600179586)
 [ ] Download "WooCommerce SKU template" from Ansons Branch Inventory admin
@@ -17,6 +18,17 @@ ONE-TIME SETUP
 
 CSV FORMAT (every import)
 -------------------------
+Option A — SAP export (upload directly, no conversion):
+Itemcode,Itemname,WhsCode,WhsName,Available
+005600148218,...,110,Landmark Makati Selling,1
+005600167321,...,110,Landmark Makati Selling,2
+
+  Only WooCommerce SKUs are processed.
+  Set minimum stock on import form before SAP upload (default 2)
+  Available qty at/above minimum = available | below = not_available
+  WhsCode must be mapped to ORDDD branch (see store code mapping)
+
+Option B — Manual CSV:
 sku,store_code,status
 117600179586,MANILA,available
 117600179586,CEBU,not_available
@@ -25,8 +37,8 @@ Status values: available  |  not_available
 
 DAILY / REGULAR WORKFLOW
 ------------------------
-[ ] Export or fill CSV for WooCommerce SKUs only (offline-only SKUs not needed)
-[ ] Staff marks available / not_available per store branch
+[ ] Export SAP inventory CSV (or fill manual CSV for WooCommerce SKUs only)
+[ ] Map all WhsCode values used in the export (110, 120, etc.) to ORDDD branches
 [ ] WooCommerce → Ansons Branch Inventory → Import CSV → Merge (daily updates)
 [ ] Spot-check a few products on the website (product page + checkout branch selector)
 [ ] Review "Last import" for skipped rows and fix store codes or SKUs if needed

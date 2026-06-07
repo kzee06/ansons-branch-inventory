@@ -69,6 +69,7 @@ class BPI_Database {
 				array(
 					'block_checkout'  => 'yes',
 					'show_on_product' => 'yes',
+					'sap_min_stock'   => 2,
 				)
 			);
 		}

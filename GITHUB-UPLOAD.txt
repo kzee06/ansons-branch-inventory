@@ -1,0 +1,58 @@
+GITHUB UPLOAD — Ansons Branch Inventory (kzee06)
+==============================================
+
+I cannot delete or upload to GitHub from here — GitHub needs YOU to sign in once on your Mac.
+Your plugin files are ready on your computer. Follow these steps in order.
+
+
+STEP 1 — DELETE THE OLD REPO (browser)
+--------------------------------------
+1. Open https://github.com/kzee06/ansons-branch-inventory/settings
+2. Scroll to the bottom → "Danger Zone"
+3. Click "Delete this repository"
+4. Type: ansons-branch-inventory
+5. Confirm delete
+
+
+STEP 2 — CREATE A NEW EMPTY REPO (browser)
+------------------------------------------
+1. Open https://github.com/new
+2. Repository name: ansons-branch-inventory
+3. Public
+4. DO NOT check: README, .gitignore, or license
+5. Click "Create repository"
+
+
+STEP 3 — UPLOAD FROM YOUR MAC (Terminal)
+----------------------------------------
+Copy this ONE line, paste in Terminal, press Enter:
+
+bash "/Users/kzee/Downloads/orddd-branch-pickup-inventory/push-to-github.sh"
+
+Sign in as kzee06 if browser opens.
+
+If it asks for password → use Personal Access Token:
+https://github.com/settings/tokens → Generate (classic) → check "repo"
+
+
+STEP 4 — CHECK
+--------------
+Open https://github.com/kzee06/ansons-branch-inventory
+
+You should see:
+  includes/
+  assets/
+  orddd-branch-pickup-inventory.php
+  README.md
+  SETUP-CHECKLIST.txt
+  changelog.txt
+
+
+IF PUSH FAILS WITH "rejected" or "non-fast-forward"
+---------------------------------------------------
+Run this instead:
+
+cd "/Users/kzee/Downloads/orddd-branch-pickup-inventory"
+git push -u origin main --force
+
+(Only use --force if you recreated the repo WITH a README on GitHub.)

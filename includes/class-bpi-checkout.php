@@ -57,6 +57,8 @@ class BPI_Checkout {
 					'selectBranch'=> __( 'Select a pickup branch to see item availability.', 'orddd-branch-pickup-inventory' ),
 					'allAvailable'=> __( 'All items are available for pickup at this branch.', 'orddd-branch-pickup-inventory' ),
 					'unavailable' => __( 'Some items are not available at this branch.', 'orddd-branch-pickup-inventory' ),
+					'fullyAvailableHint' => __( 'All items in your cart are available for pickup at: %s', 'orddd-branch-pickup-inventory' ),
+					'noFullyAvailable'   => __( 'No branch currently has every item in your cart available for pickup.', 'orddd-branch-pickup-inventory' ),
 				),
 			)
 		);
@@ -147,11 +149,14 @@ class BPI_Checkout {
 			}
 		}
 
+		$fully_available_branches = BPI_Inventory::get_branches_where_cart_is_fully_available( $branch_id );
+
 		wp_send_json_success(
 			array(
-				'items'         => $items,
-				'all_available' => $all_available,
-				'branch_label'  => BPI_Branches::get_branch_label( $branch_id ),
+				'items'                      => $items,
+				'all_available'              => $all_available,
+				'branch_label'               => BPI_Branches::get_branch_label( $branch_id ),
+				'fully_available_branches'   => $fully_available_branches,
 			)
 		);
 	}
