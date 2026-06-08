@@ -1,0 +1,5 @@
+# Files excluded from `git archive` plugin builds (dev/repo-only artifacts).
+/.gitignore        export-ignore
+/.gitattributes    export-ignore
+/GITHUB-UPLOAD.txt export-ignore
+/push-to-github.sh export-ignore
