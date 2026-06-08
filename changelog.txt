@@ -1,3 +1,6 @@
+= 1.4.5 =
+* SAP import now matches SKUs even when WooCommerce dropped a leading zero (e.g. SAP 056000161918 vs WooCommerce 56000161918) or stored a leading asterisk, so those products update instead of being ignored. Matched rows are saved under the WooCommerce SKU. Ambiguous matches are skipped to avoid updating the wrong product.
+
 = 1.4.4 =
 * SAP imports: minimum stock threshold is now configurable in the upload form before importing (default 2).
 

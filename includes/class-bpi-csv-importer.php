@@ -221,11 +221,12 @@ class BPI_CSV_Importer {
 	 * @return array{imported: int, skipped: int, ignored: int, errors: array<int, string>}
 	 */
 	private static function import_sap_rows( $handle, $columns ) {
-		$skipped  = 0;
-		$ignored  = 0;
-		$errors   = array();
-		$row_num  = 1;
-		$pending  = array();
+		$skipped   = 0;
+		$ignored   = 0;
+		$errors    = array();
+		$row_num   = 1;
+		$pending   = array();
+		$sku_index = BPI_Inventory::build_sku_index();
 
 		while ( ( $row = fgetcsv( $handle ) ) !== false ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition
 			++$row_num;
@@ -248,10 +249,16 @@ class BPI_CSV_Importer {
 				continue;
 			}
 
-			if ( ! wc_get_product_id_by_sku( $sku ) ) {
+			$wc_sku = BPI_Inventory::resolve_sap_sku_to_wc( $sku, $sku_index );
+
+			if ( '' === $wc_sku ) {
 				++$ignored;
 				continue;
 			}
+
+			// Store under the canonical WooCommerce SKU so product pages and
+			// the products list (which look up by the WC SKU) find the row.
+			$sku = $wc_sku;
 
 			if ( '' === $location_id ) {
 				++$skipped;

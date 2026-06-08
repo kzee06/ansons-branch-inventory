@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Ansons Branch Inventory
  * Description: Branch pickup stock for click & collect. Requires Order Delivery Date Pro for WooCommerce and WooCommerce.
- * Version: 1.4.4
+ * Version: 1.4.5
  * Author: Kristoffer Cheng
  * Author URI: https://github.com/kzee06
  * Requires Plugins: woocommerce
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BPI_VERSION', '1.4.4' );
+define( 'BPI_VERSION', '1.4.5' );
 define( 'BPI_PLUGIN_NAME', 'Ansons Branch Inventory' );
 define( 'BPI_PLUGIN_AUTHOR', 'Kristoffer Cheng' );
 define( 'BPI_PLUGIN_AUTHOR_URI', 'https://github.com/kzee06' );

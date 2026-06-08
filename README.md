@@ -3,7 +3,7 @@
 WordPress plugin for **Ansons** click & collect: branch-level pickup availability via CSV import, integrated with **Order Delivery Date Pro** and **WooCommerce**.
 
 **Author:** [Kristoffer Cheng](https://github.com/kzee06)
-**Version:** 1.4.4
+**Version:** 1.4.5
 **Repository:** https://github.com/kzee06/ansons-branch-inventory
 
 GitHub is the **source of truth** for this plugin. All changes are developed in Cursor, committed, and pushed to GitHub. Staging/production installs are built as a ZIP from the committed code.
@@ -119,6 +119,12 @@ Itemcode,Itemname,WhsCode,WhsName,Available
 Only SKUs that exist in WooCommerce are updated. Stock **at or above** the
 configured minimum (default 2) = Available; below = Not available. Map each
 `WhsCode` to an ORDDD branch under **Store code mapping**.
+
+SKU matching is tolerant of a leading zero or asterisk: a SAP itemcode like
+`056000161918` will still match a WooCommerce SKU stored as `56000161918`
+(and vice-versa). Matched stock is saved under the WooCommerce SKU. If a
+loose match is ambiguous (more than one WooCommerce product), the row is
+skipped rather than risk updating the wrong product.
 
 ### Manual availability CSV
 

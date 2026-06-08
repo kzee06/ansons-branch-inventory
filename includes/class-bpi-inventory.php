@@ -104,6 +104,104 @@ class BPI_Inventory {
 	}
 
 	/**
+	 * Normalize a SKU/itemcode to a loose match key.
+	 *
+	 * Strips a leading asterisk and leading zeros so that SAP itemcodes
+	 * (e.g. 056000161918) can match WooCommerce SKUs stored with the leading
+	 * zero dropped (56000161918) or with a leading marker (*123…).
+	 *
+	 * @param string $sku Raw SKU or itemcode.
+	 * @return string Normalized key (empty if nothing usable remains).
+	 */
+	public static function normalize_sku_key( $sku ) {
+		$key = strtoupper( trim( (string) $sku ) );
+		$key = ltrim( $key, '*' );
+		$key = ltrim( $key, '0' );
+
+		return $key;
+	}
+
+	/**
+	 * Build a loose SKU lookup: normalized key => actual WooCommerce SKU.
+	 *
+	 * Keys that map to more than one distinct WooCommerce SKU are dropped so a
+	 * fuzzy match can never resolve to the wrong product.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function build_sku_index() {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+		$rows = $wpdb->get_col(
+			"SELECT pm.meta_value
+			FROM {$wpdb->postmeta} pm
+			INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+			WHERE pm.meta_key = '_sku'
+				AND pm.meta_value <> ''
+				AND p.post_type IN ( 'product', 'product_variation' )
+				AND p.post_status = 'publish'"
+		);
+
+		$index     = array();
+		$ambiguous = array();
+
+		foreach ( (array) $rows as $sku ) {
+			$sku = (string) $sku;
+			$key = self::normalize_sku_key( $sku );
+
+			if ( '' === $key ) {
+				continue;
+			}
+
+			if ( isset( $index[ $key ] ) ) {
+				if ( $index[ $key ] !== $sku ) {
+					$ambiguous[ $key ] = true;
+				}
+				continue;
+			}
+
+			$index[ $key ] = $sku;
+		}
+
+		foreach ( array_keys( $ambiguous ) as $key ) {
+			unset( $index[ $key ] );
+		}
+
+		return $index;
+	}
+
+	/**
+	 * Resolve a SAP itemcode to a real WooCommerce SKU.
+	 *
+	 * Tries an exact SKU match first, then falls back to a loose match
+	 * (ignoring a leading asterisk / leading zeros) via the prebuilt index.
+	 *
+	 * @param string                $sap_sku SAP itemcode.
+	 * @param array<string, string> $index   Loose SKU index from build_sku_index().
+	 * @return string Matching WooCommerce SKU, or empty string if none.
+	 */
+	public static function resolve_sap_sku_to_wc( $sap_sku, $index ) {
+		$sap_sku = wc_clean( (string) $sap_sku );
+
+		if ( '' === $sap_sku ) {
+			return '';
+		}
+
+		if ( wc_get_product_id_by_sku( $sap_sku ) ) {
+			return $sap_sku;
+		}
+
+		$key = self::normalize_sku_key( $sap_sku );
+
+		if ( '' !== $key && isset( $index[ $key ] ) ) {
+			return $index[ $key ];
+		}
+
+		return '';
+	}
+
+	/**
 	 * Upsert one inventory row.
 	 *
 	 * @param string   $sku       Product SKU.
